@@ -20,7 +20,14 @@ pub fn main() !void {
     var argMgr = zarg.argManager{ .params = &opts };
 
     // process the args
-    try argMgr.process(argV);
+    // 1. set up an allocator for the positional arguments
+    const alc = std.heap.page_allocator;
+    // initialize an array list to hold the arguments
+    var myPositionalArgs = std.ArrayList([*:0]u8).init(alc);
+    defer myPositionalArgs.deinit();
+    // process the argv args and optionally pass the array list to hold
+    // positional args
+    try argMgr.process(argV, &myPositionalArgs);
 
     // and now use the option structs as normal
     if (helpOpt.isPresent.?) {
@@ -32,5 +39,8 @@ pub fn main() !void {
     }
     if (outputOpt.optArg) |arg| {
         std.debug.print("the -o option is given as: {?s}\n", .{arg});
+    }
+    for (myPositionalArgs.items, 0..) |ar, idx| {
+        std.debug.print("Non positional arg {d} given: {?s}\n", .{ idx, ar });
     }
 }

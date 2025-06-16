@@ -1,42 +1,53 @@
 const std = @import("std");
 const testing = std.testing;
 
-// captures non-positional flag-based parameters and options
+/// captures non-positional flag-based parameters and options
 pub const params: type = struct {
-    // short and long flags are optional, but if they are not given,
-    // zarg has nothing to try and match...
+    /// short and long flags are optional, but if they are not given,
+    /// zarg has nothing to try and match...
     shortFlag: ?[]const u8 = null,
+    /// short and long flags are optional, but if they are not given,
+    /// zarg has nothing to try and match...
     longFlag: ?[]const u8 = null,
+    /// user-supplied usage help message
     helpMsg: []const u8,
+    /// this is false by default and made true if the flag is changed by the
+    /// argManager struct when processing the command line arguments
     isPresent: ?bool = false,
-    // because any flag based arguments are read from stdin,
-    // they are stored in this struct as a string
+    /// tells ZARG whether or not to expect an argument that accompanies this flag
+    /// like -o OUTPUT_LOCATION
     hasArg: ?bool = false,
+    /// populated by argManager.process() when processing the command line arguments
     optArg: ?[]const u8 = null,
+
     // todo consider whether we should do some validation with the given argument
     // to make sure an expected bool is a bool or expected number is a number
     // optArgType: type,
     // hasValue? like - o OUTPUT
+
 };
 
+/// main struct to hold user defined parameters and arguments.
+/// NOTE, only `params` field should be supplied by the user.
 pub const argManager = struct {
-
-    // populated on runtime with the first argV given on .process()
+    /// populated on runtime with the first argv given on self.process()
     programName: ?[]const u8 = null,
 
-    // takes param structs
+    // takes an array of param structs
     params: []const *params,
 
-    // populated on runtime with .process()
-    // note, this will remain null if no positional args are
-    // given such that the user can determine whether
-    // they want to throw an error
-    positionalArgs: ?[]u8 = null,
+    /// populated on runtime with .process()
+    /// NOTE, this will remain null if no positional args are
+    /// given such that the user can determine whether
+    /// they want to throw an error
+    positionalArgs: ?[][*:0]u8 = null,
 
+    /// a helpful internal field to keep track of parsing flag
+    /// based arguments
     paramArgToAdd: ?usize = null,
 
-    /// processes params and args to populate the user defined structs
-    pub fn process(self: *argManager, argv: [][*:0]u8) !void {
+    /// processes argv args from stdin
+    pub fn process(self: *argManager, argv: [][*:0]u8, arrayList: ?*std.ArrayList([*:0]u8)) !void {
 
         // convert the c-style string to zig style
         // by convention, the first command line arg is the name of the program itself
@@ -84,6 +95,7 @@ pub const argManager = struct {
                                 //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
                                 if (param.hasArg.? == true) {
                                     self.paramArgToAdd = argi;
+                                    continue;
                                 }
                                 continue;
                             }
@@ -92,20 +104,11 @@ pub const argManager = struct {
 
                     continue;
                 }
+                if (arrayList) |ar| {
+                    try ar.append(inputItem);
+                }
             }
         }
-
-        // create a counter to keep track ofwhere we are in processing the args
-
-        // for loop over argV items given (skipping the 0th index)
-
-        // for simple boolean args, do a switch (?) over both the long and short options
-
-        // for args that take sub args like -o OUTPUT, use the index above to move the cursor/counter
-        // and throw an error if the next arg matches any of the flags like
-        // the user said "command -o -v [blah]" where -o took an arg that
-        // was not supplied
-
         return;
     }
 };

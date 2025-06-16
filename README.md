@@ -10,10 +10,11 @@ Staying true to Zig's core principles, ZARG does not make any hidden allocators,
 
 ### Features
 
-- ❌ Short and long flag matching
+- ✅ Short and long flag matching
 - ❌ Help message printing
 - ✅ Boolean flag support
 - ✅ Sub-command argument support
+- ✅ Positional argument capturing
 
 ### Documentation and Usage
 
