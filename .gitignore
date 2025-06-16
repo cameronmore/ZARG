@@ -1,0 +1,6 @@
+*.scconfig
+dev
+zig-out
+*.zig-cache
+*.zig-cache
+USAGE.md
