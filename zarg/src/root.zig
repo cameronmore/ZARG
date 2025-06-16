@@ -46,6 +46,27 @@ pub const argManager = struct {
     /// based arguments
     paramArgToAdd: ?usize = null,
 
+    // determine whether this should return a formatted string or
+    // actually print to stdout
+    /// prints a formatted help message to stdout. NOTE users must provide `""` as an argument
+    /// to use to built-in usage headline message, otherwise, one can be suppplied here
+    pub fn help(self: *argManager, usageMsg: ?([]const u8)) !void {
+        //
+        const stdout_file = std.io.getStdOut().writer();
+        var bw = std.io.bufferedWriter(stdout_file);
+        const stdout = bw.writer();
+        if (!(std.mem.eql(u8, usageMsg.?, ""))) {
+            try stdout.print("{?s}", .{usageMsg.?});
+        } else {
+            try stdout.print("usage of {?s}:\n", .{self.programName});
+        }
+        for (self.params) |param| {
+            try stdout.print("{?s}, {?s}\t\t{?s}\n", .{ param.shortFlag, param.longFlag, param.helpMsg });
+        }
+        try stdout.print("the help option is present\n", .{});
+        try bw.flush();
+    }
+
     /// processes argv args from stdin
     pub fn process(self: *argManager, argv: [][*:0]u8, arrayList: ?*std.ArrayList([*:0]u8)) !void {
 
