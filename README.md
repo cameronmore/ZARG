@@ -15,11 +15,12 @@ Staying true to Zig's core principles, ZARG does not make any hidden allocators,
 - ✅ Boolean flag support
 - ✅ Sub-command argument support
 - ✅ Positional argument capturing
-- ❌ Multiple same-flag arguments
+- ❌ Multiple same-flag arguments (like `-f Arg1 -f Arg2`)
+- ❌ Equal sign style arument parsing (like `--style=MLA`)
 
 ### Documentation and Usage
 
-Please see USAGE.md for documentation.
+Please see USAGE.md for a full example of usage (really a starter template). Below is a quickstart guide.
 
 To pull and use, run:
 ```shell
@@ -28,9 +29,40 @@ zig fetch --save git+https://github.com/cameronmore/ZARG
 And then in your build.zig file, add:
 ```zig
 const zargDep = b.dependency("zarg", .{.target=target,.optimize=optimize});
+
 exe_mod.addImport("zarg", zargDep.module("zarg"));
 ```
+After importing it into your code files (as `const zarg = @import("zarg");`), ZARG exposes two structs, an `zarg.argManager` and a `zarg.params`. To use the module, we want to (1) declare the params we want to include, (2) pass them to an `argManager` struct, and call the `argManager.process(argv)` method and pass it `std.os.argv` as `argv` from the Zig standard library.
 
+Suppose we have a program called `widget`. Suppose we want to add a verbose option and an output option that takes an argument itself. Create two `zarg.params{}` structs:
+
+```zig
+var verboseOpt = zarg.params{ .shortFlag = "-v", .longFlag = "--verbose", .helpMsg = "performs widget verbosely"};
+
+var outputOpt = zarg.params{ .shortFlag = "-o", .longFlag = "--output", .helpMsg = "output location for the program", hasArg = true };
+
+```
+
+Then, make an options or config array and pass it to the `zig.argManager{}` struct in the `.params` field:
+```zig
+const opts = [_]*zarg.params{ &verboseOpt, &outputOpt };
+
+var argMgr = zarg.argManager{ .params = &opts };
+```
+
+Now, call the `zig.argManager`'s `.process()` method, passing the standard library's os args and an allocator to hold the positional args (i.e., arguments after the flags):
+```zig
+var positionalArgArray = std.ArrayList([*:0]u8).init(alc);
+defer positionalArgArray.deinit();
+
+try argMgr.process(std.os.argv, &positionalArgArray);
+```
+This populates each of the `zarg.params`'s fields, namely: `zarg.params.isPresent()` to know whether the flag was present or `zarg.params.optArg` that holds any flag based arguments like output in the `outputOpt` struct, like so:
+```zig
+if (outputOpt.optArg) |arg| {
+    std.debug.print("the -o option is given as: {?s}\n", .{arg});
+}
+```
 
 ### Use of Artificial Intelligence
 

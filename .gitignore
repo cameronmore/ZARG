@@ -3,3 +3,5 @@ dev
 zig-out
 *.zig-cache
 *.zig-cache
+docs
+docs-copy

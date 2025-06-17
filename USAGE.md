@@ -36,7 +36,12 @@ var positionalArgArray = std.ArrayList([*:0]u8).init(alc);
 defer positionalArgArray.deinit();
 try argMgr.process(std.os.argv, &positionalArgArray);
 ```
-This populates each of the `zarg.params`'s fields, namely: `zarg.params.isPresent()` to know whether the flag was present or `zarg.params.optArg` that holds any flag based arguments like output in the `outputOpt` struct.
+This populates each of the `zarg.params`'s fields, namely: `zarg.params.isPresent()` to know whether the flag was present or `zarg.params.optArg` that holds any flag based arguments like output in the `outputOpt` struct, like so:
+```zig
+if (outputOpt.optArg) |arg| {
+    std.debug.print("the -o option is given as: {?s}\n", .{arg});
+}
+```
 
 ## Limitations
 
@@ -46,7 +51,7 @@ Further, if a flag-based argument is missing, ZARG will treat the next argument 
 
 ## Full Example
 
-Below is a full example of using ZARG, tested with Zig 0.14.0.
+Below is a full example of using ZARG, tested with Zig 0.14.1.
 
 ```zig
 const std = @import("std");
