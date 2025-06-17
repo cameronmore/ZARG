@@ -4,7 +4,7 @@ ZARG is a lightweight Zig command ling argument module. Zarg offers a simple API
 
 ### Why ZARG?
 
-ZARG is simple. This makes ZARG easy to drop in to an existing project and update as the Zig programming language evolves and updates.
+ZARG is simple. This makes ZARG easy to drop in to an existing project and update as the Zig programming language evolves and updates. ZARG is also lightweight enough to remove relatively easily if your needs change or want to swap in a different argument parsing module.
 
 Staying true to Zig's core principles, ZARG does not make any hidden allocators, leaving the user to decide how to store argument flags.
 
