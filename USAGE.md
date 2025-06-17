@@ -15,7 +15,7 @@ Somewhere toward the end of the file.
 
 ## Quickstart
 
-ZARG exposes two objects, an `argManager` struct and a `params` struct. to use the module, we want to (1) declare the params we want to include, (2) pass them to an `argManager` struct, and call the `argManager.process()` method and pass it `std.os.argv` from the Zig standard library.
+ZARG exposes two objects, an `argManager` struct and a `params` struct. To use the module, we want to (1) declare the params we want to include (as `zarg.params` structs), (2) pass them to an `argManager` struct, and call the `argManager.process()` method and pass it `std.os.argv` from the Zig standard library.
 
 Suppose we have a program called `widget`. Suppose we want to add a verbose option and an output option that takes an argument itself. Create two `zarg.params{}` structs:
 

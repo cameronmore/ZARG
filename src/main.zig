@@ -15,17 +15,18 @@ pub fn main() !void {
     // add the flags to a config array
     const opts = [_]*zarg.params{ &helpOpt, &verboseOpt, &outputOpt };
 
-    // pass the flag config to the arg manager
+    // pass the flag config to the arg manager,
     // NOTE that this is a mutable variable
     var argMgr = zarg.argManager{ .params = &opts };
 
-    // process the args
+    // process the args in three steps
+
     // 1. set up an allocator for the positional arguments
     const alc = std.heap.page_allocator;
-    // initialize an array list to hold the arguments
+    // 2. initialize an array list to hold the arguments
     var myPositionalArgs = std.ArrayList([*:0]u8).init(alc);
     defer myPositionalArgs.deinit();
-    // process the argv args and optionally pass the array list to hold
+    // 3. process the argv args and pass the array list to hold
     // positional args
     try argMgr.process(argV, &myPositionalArgs);
 
@@ -33,8 +34,9 @@ pub fn main() !void {
     if (outputOpt.optArg) |arg| {
         std.debug.print("the -o option is given as: {?s}\n", .{arg});
     }
-    // argManager has a build in self.help() message that prints a formatted
-    // usage message. If you provide "", the default usage message will be printed.
+    // argManager has a built in self.help() method that prints a formatted
+    // usage message to stdout. If you provide "", the default usage message will be printed,
+    // otherwise you can provide a custom headline help message
     if (helpOpt.isPresent.?) {
         try argMgr.help("");
         return;
