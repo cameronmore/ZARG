@@ -27,6 +27,11 @@ try argMgr.process(std.os.argv, &positionalArgArray);
 ```
 This populates each of the `zarg.params`'s fields, namely: `zarg.params.isPresent()` to know whether the flag was present or `zarg.params.optArg` that holds any flag based arguments like output in the `outputOpt` struct.
 
+## Limitations
+
+There are many things that ZARG doesn't do, but one worth noting is that if a flag-based argument is given, (like `-o OUTPUT_LOCATION`), then ZARG will overwrite multiples with the last value given.
+
+Further, if a flag-based argument is missing, ZARG will treat the next argument as the value for that argument. For example, suppose we want to specify an output location and verbose mode, but we forgot to provide an output location (like `my_tool -o -v MY_NON-POSITIONAL_INPUT`), then ZARG will treat `-v` as the argument for `-o` and `my_tool` will not run in verbose mode.
 
 ## Full Example
 
