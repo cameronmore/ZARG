@@ -63,7 +63,6 @@ pub const argManager = struct {
         for (self.params) |param| {
             try stdout.print("{?s}, {?s}\t\t{?s}\n", .{ param.shortFlag, param.longFlag, param.helpMsg });
         }
-        try stdout.print("the help option is present\n", .{});
         try bw.flush();
     }
 
