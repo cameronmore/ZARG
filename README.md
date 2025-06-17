@@ -21,6 +21,17 @@ Staying true to Zig's core principles, ZARG does not make any hidden allocators,
 
 Please see USAGE.md for documentation.
 
+To pull and use, run:
+```shell
+zig fetch --save git+https://github.com/cameronmore/ZARG
+```
+And then in your build.zig file, add:
+```zig
+const zargDep = b.dependency("zarg", .{.target=target,.optimize=optimize});
+exe_mod.addImport("zarg", zargDep.module("zarg"));
+```
+
+
 ### Use of Artificial Intelligence
 
 This project was developed with the aid of artificial intelligence (AI) but not AI code-completion. I started this project to solve a practical problem I was having as well as learning Zig, so I used AI sparingly in writing the actual code.

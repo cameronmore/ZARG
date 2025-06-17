@@ -1,6 +1,17 @@
 # Usage
 
-ZARG usage is relatively straight forward. First, use `zig fetch` to pull the module.
+ZARG usage is relatively straight forward.
+
+First, in your Zig project's root, run:
+```shell
+zig fetch --save git+https://github.com/cameronmore/ZARG
+```
+And then in your build.zig file, add:
+```zig
+const zargDep = b.dependency("zarg", .{.target=target,.optimize=optimize});
+exe_mod.addImport("zarg", zargDep.module("zarg"));
+```
+Somewhere toward the end of the file.
 
 ## Quickstart
 
