@@ -100,6 +100,20 @@ pub const argManager = struct {
                 if (std.mem.startsWith(u8, inputItem, "--")) {
                     // here, try to match on self.params.longFlag
                     // std.debug.print("Starts with -: {?s}\n", .{value});
+                    for (self.params, 0..) |param, argi| {
+                        if (param.longFlag) |sf| {
+                            //std.debug.print("I compared {?s} with {?s}\n", .{ sf, inputItem });
+                            if (std.mem.eql(u8, sf, inputItem)) {
+                                param.isPresent = true;
+                                //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
+                                if (param.hasArg.? == true) {
+                                    self.paramArgToAdd = argi;
+                                    continue;
+                                }
+                                continue;
+                            }
+                        }
+                    }
                     continue;
                 }
 
