@@ -20,7 +20,7 @@ Staying true to Zig's core principles, ZARG does not make any hidden allocators,
 
 ### Documentation and Usage
 
-Please see USAGE.md for a full example of usage (really a starter template). Below is a quickstart guide.
+Please see USAGE.md for a full example of usage (really a starter template). Below is a quickstart guide. I also wrote a simple program, called `zat` that implements the library for reference ([here](https://github.com/cameronmore/zat)).
 
 To pull and use, run:
 ```shell
