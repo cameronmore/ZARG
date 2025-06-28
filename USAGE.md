@@ -101,7 +101,7 @@ pub fn main() !void {
     // usage message to stdout. If you provide "", the default usage message will be printed,
     // otherwise you can provide a custom headline help message
     if (helpOpt.isPresent.?) {
-        try argMgr.help("");
+        try argMgr.help(null);
         return;
     }
     // and we can access our leftover positional args like so:

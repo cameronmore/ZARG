@@ -58,12 +58,16 @@ pub const argManager = struct {
         const stdout_file = std.io.getStdOut().writer();
         var bw = std.io.bufferedWriter(stdout_file);
         const stdout = bw.writer();
-        if (!(std.mem.eql(u8, usageMsg.?, ""))) {
-            try stdout.print("{?s}", .{usageMsg.?});
+        // check if optional arg is null
+        if (usageMsg) |um| {
+            // if not null, use that as the first line of the help message
+            try stdout.print("{?s}", .{um});
         } else {
+            // if null, print default first line of usage message
             try stdout.print("usage of {?s}:\n", .{self.programName});
         }
         for (self.params) |param| {
+            // print each flag param
             try stdout.print("{?s}, {?s}\t\t{?s}\n", .{ param.shortFlag, param.longFlag, param.helpMsg });
         }
         try bw.flush();
