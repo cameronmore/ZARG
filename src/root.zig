@@ -18,13 +18,17 @@ pub const params: type = struct {
     /// argManager struct when processing the command line arguments
     isPresent: ?bool = false,
     /// tells ZARG whether or not to expect an argument that accompanies this flag
-    /// like -o OUTPUT_LOCATION
+    /// like -o OUTPUT_LOCATION. Only the next value is processed by ZARG (rather than,
+    /// say, the next two or three). The arg.Manager.process() method will return and error if this is set
+    /// to `true` but no arg is provided by the user
     hasArg: ?bool = false,
     /// populated by argManager.process() when processing the command line arguments
     optArg: ?[]const u8 = null,
 
     // todo consider whether we should do some validation with the given argument
-    // to make sure an expected bool is a bool or expected number is a number
+    // to make sure an expected bool is a bool or expected number is a number.
+    // a major con of that approach would be that it takes data validation
+    // out of the developer's hands.
     // optArgType: type,
     // hasValue? like - o OUTPUT
 
