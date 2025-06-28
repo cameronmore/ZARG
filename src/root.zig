@@ -81,6 +81,10 @@ pub const argManager = struct {
         // so it really should never error
         self.programName = std.mem.span(argv[0]);
 
+        // this tracks whether we have finished parsing all of the flags
+        // and if so, skips all the flag parsing logic
+        var moreArgsToParse = true;
+
         if (argv.len > 1) {
             // only iterate if there are params/flags/args to iterate over
             // and skip the first item (1.. rather than 0..)
@@ -95,73 +99,82 @@ pub const argManager = struct {
 
                 const inputItem = std.mem.span(value);
 
-                // if the paramArgToAdd is not null, add that next arg to the param
-                if (self.paramArgToAdd != null) {
-                    // first check if the arg is equal to any of the flags and
-                    // return a FlagMissing error if so
-                    for (self.params) |param| {
-                        if (param.shortFlag) |sf| {
-                            if (std.mem.eql(u8, sf, inputItem)) {
-                                return ArgParsingError.FlagBasedArgMissing;
+                if (moreArgsToParse) {
+
+                    // if the paramArgToAdd is not null, add that next arg to the param
+                    if (self.paramArgToAdd != null) {
+                        // first check if the arg is equal to any of the flags and
+                        // return a FlagMissing error if so
+                        for (self.params) |param| {
+                            if (param.shortFlag) |sf| {
+                                if (std.mem.eql(u8, sf, inputItem)) {
+                                    return ArgParsingError.FlagBasedArgMissing;
+                                }
+                            }
+                            if (param.longFlag) |lf| {
+                                if (std.mem.eql(u8, lf, inputItem)) {
+                                    return ArgParsingError.FlagBasedArgMissing;
+                                }
                             }
                         }
-                        if (param.longFlag) |lf| {
-                            if (std.mem.eql(u8, lf, inputItem)) {
-                                return ArgParsingError.FlagBasedArgMissing;
-                            }
-                        }
+                        // otherwise, add the arg to the correct param
+                        self.params[self.paramArgToAdd.?].optArg = inputItem;
+                        self.paramArgToAdd = null;
+                        continue;
                     }
-                    // otherwise, add the arg to the correct param
-                    self.params[self.paramArgToAdd.?].optArg = inputItem;
-                    self.paramArgToAdd = null;
-                    continue;
-                }
 
-                // look for long flag options first, then match short ones
+                    // look for long flag options first, then match short ones
 
-                if (std.mem.startsWith(u8, inputItem, "--")) {
-                    // here, try to match on self.params.longFlag
-                    // std.debug.print("Starts with -: {?s}\n", .{value});
-                    for (self.params, 0..) |param, argi| {
-                        if (param.longFlag) |sf| {
-                            //std.debug.print("I compared {?s} with {?s}\n", .{ sf, inputItem });
-                            if (std.mem.eql(u8, sf, inputItem)) {
-                                param.isPresent = true;
-                                //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
-                                if (param.hasArg.? == true) {
-                                    self.paramArgToAdd = argi;
+                    if (std.mem.startsWith(u8, inputItem, "--")) {
+                        // here, try to match on self.params.longFlag
+                        // std.debug.print("Starts with -: {?s}\n", .{value});
+                        for (self.params, 0..) |param, argi| {
+                            if (param.longFlag) |sf| {
+                                //std.debug.print("I compared {?s} with {?s}\n", .{ sf, inputItem });
+                                if (std.mem.eql(u8, sf, inputItem)) {
+                                    param.isPresent = true;
+                                    //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
+                                    if (param.hasArg.? == true) {
+                                        self.paramArgToAdd = argi;
+                                        continue;
+                                    }
                                     continue;
                                 }
-                                continue;
                             }
                         }
+                        continue;
                     }
-                    continue;
-                }
 
-                if (std.mem.startsWith(u8, inputItem, "-")) {
-                    // here, try to match on self.params.shortFlag
-                    // std.debug.print("Starts with -: {?s}\n", .{value});
+                    if (std.mem.startsWith(u8, inputItem, "-")) {
+                        // here, try to match on self.params.shortFlag
+                        // std.debug.print("Starts with -: {?s}\n", .{value});
 
-                    for (self.params, 0..) |param, argi| {
-                        if (param.shortFlag) |sf| {
-                            //std.debug.print("I compared {?s} with {?s}\n", .{ sf, inputItem });
-                            if (std.mem.eql(u8, sf, inputItem)) {
-                                param.isPresent = true;
-                                //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
-                                if (param.hasArg.? == true) {
-                                    self.paramArgToAdd = argi;
+                        for (self.params, 0..) |param, argi| {
+                            if (param.shortFlag) |sf| {
+                                //std.debug.print("I compared {?s} with {?s}\n", .{ sf, inputItem });
+                                if (std.mem.eql(u8, sf, inputItem)) {
+                                    param.isPresent = true;
+                                    //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
+                                    if (param.hasArg.? == true) {
+                                        self.paramArgToAdd = argi;
+                                        continue;
+                                    }
                                     continue;
                                 }
-                                continue;
                             }
                         }
-                    }
 
-                    continue;
+                        continue;
+                    }
                 }
+                // if this point is reached, then, in theory, all of the flags should be parsed.
+                // this means that we should skip all of the above flag parsing for any args
+                // that come after this point
                 if (arrayList) |ar| {
                     try ar.append(inputItem);
+                    // so set the more args to parse equal to false so that
+                    // any flags given after this point are treated as positional args
+                    moreArgsToParse = false;
                 }
             }
         }
