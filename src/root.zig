@@ -5,9 +5,21 @@ const testing = std.testing;
 pub const ArgParsingError = error{FlagBasedArgMissing};
 
 pub const RuntimeArgType = enum {
+    i8,
+    u8,
+    i16,
+    u16,
     i32,
+    u32,
+    i64,
+    u64,
+    i126,
+    u128,
+    f16,
+    f32,
     f64,
-    bool,
+    f80,
+    // bool,
     string,
 };
 
@@ -45,14 +57,75 @@ pub const params: type = struct {
     pub fn alignsToType(self: *params) bool {
         if (self.optArg) |argValue| {
             switch (self.optArgType.?) {
+                .string => return true,
+                .u8 => {
+                    _ = std.fmt.parseInt(u8, argValue, 10) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .i8 => {
+                    _ = std.fmt.parseInt(i8, argValue, 10) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .u16 => {
+                    _ = std.fmt.parseInt(u16, argValue, 10) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .i16 => {
+                    _ = std.fmt.parseInt(i16, argValue, 10) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .u32 => {
+                    _ = std.fmt.parseInt(u32, argValue, 10) catch {
+                        return false;
+                    };
+                    return true;
+                },
                 .i32 => {
                     _ = std.fmt.parseInt(i32, argValue, 10) catch {
                         return false;
                     };
                     return true;
                 },
+                .u64 => {
+                    _ = std.fmt.parseInt(u64, argValue, 10) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .i64 => {
+                    _ = std.fmt.parseInt(i64, argValue, 10) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .f16 => {
+                    _ = std.fmt.parseFloat(f16, argValue) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .f32 => {
+                    _ = std.fmt.parseFloat(f32, argValue) catch {
+                        return false;
+                    };
+                    return true;
+                },
                 .f64 => {
                     _ = std.fmt.parseFloat(f64, argValue) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .f80 => {
+                    _ = std.fmt.parseFloat(f80, argValue) catch {
                         return false;
                     };
                     return true;

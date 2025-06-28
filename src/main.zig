@@ -56,6 +56,6 @@ pub fn main() !void {
     }
 
     if (numberOpt.alignsToType()) {
-        std.debug.print("imput is an int\n", .{});
+        std.debug.print("imput is the right type\n", .{});
     }
 }
