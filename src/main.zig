@@ -43,7 +43,7 @@ pub fn main() !void {
         std.debug.print("the -o option is given as: {?s}\n", .{arg});
     }
     // argManager has a built in self.help() method that prints a formatted
-    // usage message to stdout. If you provide "", the default usage message will be printed,
+    // usage message to stdout. If you provide null, the default usage message will be printed,
     // otherwise you can provide a custom headline help message
     if (helpOpt.isPresent.?) {
         try argMgr.help(null);

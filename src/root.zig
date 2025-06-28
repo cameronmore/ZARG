@@ -51,7 +51,7 @@ pub const argManager = struct {
 
     // determine whether this should return a formatted string or
     // actually print to stdout
-    /// prints a formatted help message to stdout. NOTE users must provide `""` as an argument
+    /// prints a formatted help message to stdout. NOTE users must provide `null` as an argument
     /// to use to built-in usage headline message, otherwise, one can be suppplied here
     pub fn help(self: *argManager, usageMsg: ?([]const u8)) !void {
         //
