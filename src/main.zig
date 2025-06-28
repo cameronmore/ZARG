@@ -12,8 +12,9 @@ pub fn main() !void {
     var helpOpt = zarg.params{ .shortFlag = "-h", .longFlag = "--help", .helpMsg = "prints a help message" };
     var verboseOpt = zarg.params{ .shortFlag = "-v", .longFlag = "--verbose", .helpMsg = "prints a verbose output" };
     var outputOpt = zarg.params{ .shortFlag = "-o", .longFlag = "--output", .helpMsg = "output location for the program", .hasArg = true };
+    var numberOpt = zarg.params{ .shortFlag = "-n", .longFlag = "--number", .helpMsg = "number of items to process of the program", .hasArg = true, .optArgType = zarg.RuntimeArgType.i32 };
     // add the flags to a config array
-    const opts = [_]*zarg.params{ &helpOpt, &verboseOpt, &outputOpt };
+    const opts = [_]*zarg.params{ &helpOpt, &verboseOpt, &outputOpt, &numberOpt };
 
     // pass the flag config to the arg manager,
     // NOTE that this is a mutable variable
@@ -52,5 +53,9 @@ pub fn main() !void {
     // and we can access our leftover positional args like so:
     for (myPositionalArgs.items, 0..) |ar, idx| {
         std.debug.print("Non positional arg {d} given: {?s}\n", .{ idx, ar });
+    }
+
+    if (numberOpt.alignsToType()) {
+        std.debug.print("imput is an int\n", .{});
     }
 }

@@ -4,6 +4,13 @@ const testing = std.testing;
 /// error set for parsing command line args
 pub const ArgParsingError = error{FlagBasedArgMissing};
 
+pub const RuntimeArgType = enum {
+    i32,
+    f64,
+    bool,
+    string,
+};
+
 /// captures non-positional flag-based parameters and options
 pub const params: type = struct {
     /// short and long flags are optional, but if they are not given,
@@ -32,6 +39,32 @@ pub const params: type = struct {
     // optArgType: type,
     // hasValue? like - o OUTPUT
 
+    /// the type that the flag argument should be (i.e., float, int, string, bool).
+    optArgType: ?RuntimeArgType = null,
+
+    pub fn alignsToType(self: *params) bool {
+        if (self.optArg) |argValue| {
+            switch (self.optArgType.?) {
+                .i32 => {
+                    _ = std.fmt.parseInt(i32, argValue, 10) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                .f64 => {
+                    _ = std.fmt.parseFloat(f64, argValue) catch {
+                        return false;
+                    };
+                    return true;
+                },
+                //.f64 => std.fmt.parseFloat(f64, argValue),
+                //.bool => std.mem.eql(u8, argValue, "true") or std.mem.eql(u8, "false", argValue),
+                //.string => true,
+                else => return false,
+            }
+        }
+        return false;
+    }
 };
 
 /// main struct to hold user defined parameters and arguments.
