@@ -27,8 +27,16 @@ pub fn main() !void {
     var myPositionalArgs = std.ArrayList([*:0]u8).init(alc);
     defer myPositionalArgs.deinit();
     // 3. process the argv args and pass the array list to hold
-    // positional args
-    try argMgr.process(argV, &myPositionalArgs);
+    // positional args and handle the FlagBasedArgMissing error
+    argMgr.process(argV, &myPositionalArgs) catch |err| switch (err) {
+        error.FlagBasedArgMissing => {
+            std.debug.print("flag based arg missing\n", .{});
+            return;
+        },
+        else => {
+            return;
+        },
+    };
 
     // and now use the option structs as normal
     if (outputOpt.optArg) |arg| {

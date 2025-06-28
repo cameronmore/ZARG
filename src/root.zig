@@ -1,6 +1,9 @@
 const std = @import("std");
 const testing = std.testing;
 
+/// error set for parsing command line args
+pub const ArgParsingError = error{FlagBasedArgMissing};
+
 /// captures non-positional flag-based parameters and options
 pub const params: type = struct {
     /// short and long flags are optional, but if they are not given,
@@ -90,6 +93,21 @@ pub const argManager = struct {
 
                 // if the paramArgToAdd is not null, add that next arg to the param
                 if (self.paramArgToAdd != null) {
+                    // first check if the arg is equal to any of the flags and
+                    // return a FlagMissing error if so
+                    for (self.params) |param| {
+                        if (param.shortFlag) |sf| {
+                            if (std.mem.eql(u8, sf, inputItem)) {
+                                return ArgParsingError.FlagBasedArgMissing;
+                            }
+                        }
+                        if (param.longFlag) |lf| {
+                            if (std.mem.eql(u8, lf, inputItem)) {
+                                return ArgParsingError.FlagBasedArgMissing;
+                            }
+                        }
+                    }
+                    // otherwise, add the arg to the correct param
                     self.params[self.paramArgToAdd.?].optArg = inputItem;
                     self.paramArgToAdd = null;
                     continue;
@@ -143,6 +161,12 @@ pub const argManager = struct {
                 }
             }
         }
+        // if there's still a flag based argument to parse and add,
+        // throw an error here
+        if (self.paramArgToAdd != null) {
+            return ArgParsingError.FlagBasedArgMissing;
+        }
+
         return;
     }
 };
