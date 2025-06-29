@@ -43,11 +43,21 @@ if (outputOpt.optArg) |arg| {
 }
 ```
 
+## Command Line Parsing
+
+ZARG parses simple flags as booleans (whether they are present or not). Being implicit, specifying `-v true` after a boolean flag will cause problems parsing anything after `true`.
+
+Following the [Utility Argument Syntax](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html#tag_12_01), ZARG recognizes `--` and treats anything after that as a positional argument. (So, If a program had flags `a` , `n` , `v`, then `my_program -v -- -n arg1` would treat both `-n` and `arg1` as the first two positional arguments).
+
+If an unrecognized flag is given, ZARG prints the unrecognized flag and returns an error.
+
+Following the Utility Argument Syntax, ZARG _does_ treat `-` as an argument, and should be understood as an alias for `stdin` or a file named `-`.
+
 ## Limitations
 
-There are many things that ZARG doesn't do, but one worth noting is that if a flag-based argument is given, (like `-o OUTPUT_LOCATION`), then ZARG will overwrite multiples with the last value given.
-
-Further, if a flag-based argument is missing, ZARG will treat the next argument as the value for that argument. For example, suppose we want to specify an output location and verbose mode, but we forgot to provide an output location (like `my_tool -o -v MY_NON-POSITIONAL_INPUT`), then ZARG will treat `-v` as the argument for `-o` and `my_tool` will not run in verbose mode.
+ZARG does not follow all of the [Utility Argument Syntax](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html#tag_12_01). It does not follow the guidelines concerning:
+- Allow grouping of flags (like `-vwr` == `-v -w -r`), each must be separate.
+- Accept multiple arguments for the same flag (like if `-f` could take multiple arguments like `-f FILE1 -f FILE1`, then `FILE1` is overwritten and ignored by `FILE2`)
 
 ## Full Example
 

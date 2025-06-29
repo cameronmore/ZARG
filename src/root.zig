@@ -55,7 +55,7 @@ pub const argManager = struct {
 
     /// the argManager.process() method will fail by default if it encounters an unrecognized flag,
     /// unless this is set to false. NOTE that if this is set to false, it will affect ZARG's ability to parse
-    /// other flags that come after any possible unrecognized ones, but 
+    /// other flags that come after any possible unrecognized ones, but
     /// the choice is yours.
     failOnUnrecognizedFlags: ?bool = true,
 
@@ -111,7 +111,7 @@ pub const argManager = struct {
 
                 if (std.mem.eql(u8, "--", inputItem)) {
                     moreArgsToParse = !moreArgsToParse;
-                    continue: mainArgLoop;
+                    continue :mainArgLoop;
                 }
 
                 if (moreArgsToParse) {
@@ -141,8 +141,6 @@ pub const argManager = struct {
                     // look for long flag options first, then match short ones
 
                     if (std.mem.startsWith(u8, inputItem, "--")) {
-                        // here, try to match on self.params.longFlag
-                        // std.debug.print("Starts with -: {?s}\n", .{value});
                         for (self.params, 0..) |param, argi| {
                             if (param.longFlag) |sf| {
                                 //std.debug.print("I compared {?s} with {?s}\n", .{ sf, inputItem });
@@ -163,17 +161,18 @@ pub const argManager = struct {
                         // unrecognized one though.
                         // todo, consider dropping this as an option
                         // todo consider making this a panic error
-                        // todo consider whether this should print the unrecognized flag
                         // and same goes for the short flag version below
                         if (self.failOnUnrecognizedFlags == true) {
+                            const stdout_file = std.io.getStdOut().writer();
+                            var bw = std.io.bufferedWriter(stdout_file);
+                            const stdout = bw.writer();
+                            try stdout.print("unrecognized flag: '{?s}'\n", .{inputItem});
+                            try bw.flush();
                             return ArgParsingError.UnrecognizedFlag;
                         }
                     }
 
                     if (std.mem.startsWith(u8, inputItem, "-")) {
-                        // here, try to match on self.params.shortFlag
-                        // std.debug.print("Starts with -: {?s}\n", .{value});
-
                         for (self.params, 0..) |param, argi| {
                             if (param.shortFlag) |sf| {
                                 //std.debug.print("I compared {?s} with {?s}\n", .{ sf, inputItem });
@@ -188,8 +187,25 @@ pub const argManager = struct {
                                 }
                             }
                         }
+                        // according to utility argument syntax, "-" should be treated as an argument,
+                        // so inserting that here
+                        if (std.mem.eql(u8, inputItem, "-")) {
+                            moreArgsToParse = false;
+                            if (arrayList) |ar| {
+                                try ar.append(inputItem);
+                                // so set the more args to parse equal to false so that
+                                // any flags given after this point are treated as positional args
+                                moreArgsToParse = false;
+                            }
+                            continue :mainArgLoop;
+                        }
                         // see note above
                         if (self.failOnUnrecognizedFlags == true) {
+                            const stdout_file = std.io.getStdOut().writer();
+                            var bw = std.io.bufferedWriter(stdout_file);
+                            const stdout = bw.writer();
+                            try stdout.print("unrecognized flag: '{?s}'\n", .{inputItem});
+                            try bw.flush();
                             return ArgParsingError.UnrecognizedFlag;
                         }
                     }
