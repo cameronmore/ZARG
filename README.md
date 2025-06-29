@@ -16,9 +16,9 @@ Staying true to Zig's core principles, ZARG does not make any hidden allocators,
 - ✅ Sub-command argument support
 - ✅ Positional argument capturing
 - ✅ Missing flag-based argument error handling
+- ✅ Unrecognized flag error support
 - ❌ Multiple same-flag arguments (like `-f Arg1 -f Arg2`)
 - ❌ Equal sign style arument parsing (like `--style=MLA`)
-- ❌ Unrecognized flag error support (i.e., doesn't return errors when undefined flags are given)
 
 ### Documentation and Usage
 
