@@ -109,6 +109,11 @@ pub const argManager = struct {
 
                 const inputItem: [:0]u8 = std.mem.span(value);
 
+                if (std.mem.eql(u8, "--", inputItem)) {
+                    moreArgsToParse = !moreArgsToParse;
+                    continue: mainArgLoop;
+                }
+
                 if (moreArgsToParse) {
 
                     // if the paramArgToAdd is not null, add that next arg to the param
