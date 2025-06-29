@@ -4,7 +4,7 @@ ZARG usage is relatively straight forward.
 
 First, in your Zig project's root, run:
 ```shell
-zig fetch --save git+https://github.com/cameronmore/ZARG
+zig fetch --save git+https://github.com/cameronmore/ZARG#v0.8.0
 ```
 And then in your build.zig file, add:
 ```zig

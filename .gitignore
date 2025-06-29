@@ -5,3 +5,4 @@ zig-out
 *.zig-cache
 docs
 docs-copy
+dev
