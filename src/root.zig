@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 
 /// error set for parsing command line args
-pub const ArgParsingError = error{FlagBasedArgMissing};
+pub const ArgParsingError = error{FlagBasedArgMissing,UnrecognizedFlag};
 
 /// captures non-positional flag-based parameters and options
 pub const params: type = struct {
@@ -96,12 +96,12 @@ pub const argManager = struct {
             // also build a reference array of flags once here and use
             // to match below
 
-            for (argv, 0..) |value, i| {
+           mainArgLoop: for (argv, 0..) |value, i| {
                 if (i == 0) {
                     continue;
                 }
 
-                const inputItem = std.mem.span(value);
+                const inputItem: [:0]u8 = std.mem.span(value);
 
                 if (moreArgsToParse) {
 
@@ -140,13 +140,13 @@ pub const argManager = struct {
                                     //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
                                     if (param.hasArg.? == true) {
                                         self.paramArgToAdd = argi;
-                                        continue;
+                                        // continue;
                                     }
-                                    continue;
+                                    continue: mainArgLoop;
                                 }
                             }
                         }
-                        continue;
+                        return ArgParsingError.UnrecognizedFlag;
                     }
 
                     if (std.mem.startsWith(u8, inputItem, "-")) {
@@ -161,14 +161,14 @@ pub const argManager = struct {
                                     //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
                                     if (param.hasArg.? == true) {
                                         self.paramArgToAdd = argi;
-                                        continue;
+                                        // continue;
                                     }
-                                    continue;
+                                    continue: mainArgLoop;
                                 }
                             }
                         }
-
-                        continue;
+                        return ArgParsingError.UnrecognizedFlag;
+                        // continue;
                     }
                 }
                 // if this point is reached, then, in theory, all of the flags should be parsed.

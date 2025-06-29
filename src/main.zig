@@ -33,6 +33,9 @@ pub fn main() !void {
             std.debug.print("flag based arg missing\n", .{});
             return;
         },
+        error.UnrecognizedFlag => {
+            std.debug.print("an unrecognized flag was given\n", .{});
+        },
         else => {
             return;
         },
