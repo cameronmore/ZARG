@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 
 /// error set for parsing command line args
-pub const ArgParsingError = error{FlagBasedArgMissing};
+pub const ArgParsingError = error{ FlagBasedArgMissing, UnrecognizedFlag };
 
 /// captures non-positional flag-based parameters and options
 pub const params: type = struct {
@@ -53,6 +53,12 @@ pub const argManager = struct {
     /// based arguments
     paramArgToAdd: ?usize = null,
 
+    /// the argManager.process() method will fail by default if it encounters an unrecognized flag,
+    /// unless this is set to false. NOTE that if this is set to false, it will affect ZARG's ability to parse
+    /// other flags that come after any possible unrecognized ones, but 
+    /// the choice is yours.
+    failOnUnrecognizedFlags: ?bool = true,
+
     // determine whether this should return a formatted string or
     // actually print to stdout
     /// prints a formatted help message to stdout. NOTE users must provide `null` as an argument
@@ -96,12 +102,12 @@ pub const argManager = struct {
             // also build a reference array of flags once here and use
             // to match below
 
-            for (argv, 0..) |value, i| {
+            mainArgLoop: for (argv, 0..) |value, i| {
                 if (i == 0) {
                     continue;
                 }
 
-                const inputItem = std.mem.span(value);
+                const inputItem: [:0]u8 = std.mem.span(value);
 
                 if (moreArgsToParse) {
 
@@ -140,13 +146,23 @@ pub const argManager = struct {
                                     //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
                                     if (param.hasArg.? == true) {
                                         self.paramArgToAdd = argi;
-                                        continue;
+                                        // continue;
                                     }
-                                    continue;
+                                    continue :mainArgLoop;
                                 }
                             }
                         }
-                        continue;
+                        // if the user wants to keep trying to parse the flags even if
+                        // an unrecognized one is encountered, then do so.
+                        // this will mess up any flag parsing that comes after the
+                        // unrecognized one though.
+                        // todo, consider dropping this as an option
+                        // todo consider making this a panic error
+                        // todo consider whether this should print the unrecognized flag
+                        // and same goes for the short flag version below
+                        if (self.failOnUnrecognizedFlags == true) {
+                            return ArgParsingError.UnrecognizedFlag;
+                        }
                     }
 
                     if (std.mem.startsWith(u8, inputItem, "-")) {
@@ -161,14 +177,16 @@ pub const argManager = struct {
                                     //std.debug.print("and found that {?s} is {?any}\n", .{ sf, param.isPresent });
                                     if (param.hasArg.? == true) {
                                         self.paramArgToAdd = argi;
-                                        continue;
+                                        // continue;
                                     }
-                                    continue;
+                                    continue :mainArgLoop;
                                 }
                             }
                         }
-
-                        continue;
+                        // see note above
+                        if (self.failOnUnrecognizedFlags == true) {
+                            return ArgParsingError.UnrecognizedFlag;
+                        }
                     }
                 }
                 // if this point is reached, then, in theory, all of the flags should be parsed.
